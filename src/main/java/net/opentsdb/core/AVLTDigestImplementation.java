@@ -13,34 +13,32 @@
 package net.opentsdb.core;
 
 import com.google.common.collect.Lists;
-import com.tdunning.math.stats.MergingDigest;
+import com.tdunning.math.stats.AVLTreeDigest;
 import com.tdunning.math.stats.TDigest;
 
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 
-import static net.opentsdb.core.AVLTDigestImplementation.getBytes;
-
 /**
  * TODO
  *  
  * @since 2.4
  */
-public class MergingTDigestImplementation implements Histogram {
+public class AVLTDigestImplementation implements Histogram {
 
   /** The ID of this histogram in the TSD. */
   private final int id;
-  
+
   /** The digest for this data point. */
   private TDigest digest;
-  
+
   /**
    * Default ctor.
    * @param id The ID within the TSD.
    * @throws IllegalArgumentException if the ID was not a value from 0 to 255.
    */
-  public MergingTDigestImplementation(final int id) {
+  public AVLTDigestImplementation(final int id) {
     if (id < 0 || id > 255) {
       throw new IllegalArgumentException("ID must be between 0 and 255");
     }
@@ -49,6 +47,22 @@ public class MergingTDigestImplementation implements Histogram {
   
   public byte[] histogram(final boolean include_id) {
     return getBytes(include_id, digest, (byte) id);
+  }
+
+  static byte[] getBytes(boolean include_id, TDigest digest, byte id) {
+    if (digest == null) {
+      throw new IllegalStateException("The sketch has not been set yet.");
+    }
+    final ByteBuffer buf = ByteBuffer.allocate(digest.smallByteSize());
+    digest.asSmallBytes(buf);
+    final byte[] encoded = buf.array();
+    if (include_id) {
+      final byte[] with_id = new byte[encoded.length + 1];
+      with_id[0] = id;
+      System.arraycopy(encoded, 0, with_id, 1, encoded.length);
+      return with_id;
+    }
+    return encoded;
   }
 
   public void fromHistogram(final byte[] raw, final boolean includes_id) {
@@ -67,7 +81,7 @@ public class MergingTDigestImplementation implements Histogram {
       encoded = raw;
     }
     final ByteBuffer buf = ByteBuffer.wrap(encoded);
-    digest = MergingDigest.fromBytes(buf);
+    digest = AVLTreeDigest.fromBytes(buf);
   }
 
   public double percentile(double p) {
@@ -88,8 +102,8 @@ public class MergingTDigestImplementation implements Histogram {
   }
 
   public Histogram clone() {
-    final MergingTDigestImplementation clone = 
-        new MergingTDigestImplementation(id);
+    final AVLTDigestImplementation clone =
+        new AVLTDigestImplementation(id);
     clone.fromHistogram(histogram(false), false);
     return clone;
   }
@@ -103,11 +117,11 @@ public class MergingTDigestImplementation implements Histogram {
       throw new UnsupportedOperationException("Function " + func 
           + " is not supported yet."); 
     }
-    if (!(histo instanceof MergingTDigestImplementation)) {
+    if (!(histo instanceof AVLTDigestImplementation)) {
       throw new IllegalArgumentException("Incoming histogram was not of the "
           + "same type: " + histo.getClass());
     }
-    digest.add(((MergingTDigestImplementation) histo).digest);
+    digest.add(((AVLTDigestImplementation) histo).digest);
   }
 
   public void aggregate(final List<Histogram> histos, 
@@ -117,11 +131,11 @@ public class MergingTDigestImplementation implements Histogram {
           + " is not supported yet."); 
     }
     for (final Histogram histogram : histos) {
-      if (!(histogram instanceof MergingTDigestImplementation)) {
+      if (!(histogram instanceof AVLTDigestImplementation)) {
         throw new IllegalArgumentException("Incoming histogram was not of the "
             + "same type: " + histogram.getClass());
       }
-      digest.add(((MergingTDigestImplementation) histogram).digest);
+      digest.add(((AVLTDigestImplementation) histogram).digest);
     }
   }
 

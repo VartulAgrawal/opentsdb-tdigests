@@ -19,7 +19,7 @@ import com.tdunning.math.stats.TDigest;
  * 
  * @since 2.4
  */
-public class MergingTDigestTDigestCodec extends HistogramDataPointCodec {
+public class AVLTDigestTDigestCodec extends HistogramDataPointCodec {
 
   @Override
   public Histogram decode(final byte[] raw_data, final boolean includes_id) {
