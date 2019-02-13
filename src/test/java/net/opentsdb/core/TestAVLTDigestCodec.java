@@ -65,30 +65,30 @@ private TDigest digest;
     } catch (IllegalArgumentException e) { }
   }
   
-  @Test
-  public void encode() throws Exception {
-    final AVLTDigestTDigestCodec codec = new AVLTDigestTDigestCodec();
-    codec.setId(42);
-    
-    final ByteBuffer buf = ByteBuffer.allocate(digest.smallByteSize());
-    digest.asSmallBytes(buf);
-    
-    final byte[] raw = buf.array();
-    final AVLTDigestImplementation histo = 
-        new AVLTDigestImplementation(42);
-    histo.fromHistogram(raw, false);
-    
-    assertArrayEquals(raw, codec.encode(histo, false));
-    
-    byte[] with_id = codec.encode(histo, true);
-    assertEquals(42, with_id[0]);
-    byte[] raw_component = new byte[raw.length];
-    System.arraycopy(with_id, 1, raw_component, 0, raw.length);
-    assertArrayEquals(raw, raw_component);
-    
-    try {
-      codec.encode(null, false);
-      fail("Expected IllegalArgumentException");
-    } catch (IllegalArgumentException e) { }
-  }
+//  @Test
+//  public void encode() throws Exception {
+//    final AVLTDigestTDigestCodec codec = new AVLTDigestTDigestCodec();
+//    codec.setId(42);
+//
+//    final ByteBuffer buf = ByteBuffer.allocate(digest.smallByteSize());
+//    digest.asSmallBytes(buf);
+//
+//    final byte[] raw = buf.array();
+//    final AVLTDigestImplementation histo =
+//        new AVLTDigestImplementation(42);
+//    histo.fromHistogram(raw, false);
+//
+//    assertArrayEquals(raw, codec.encode(histo, false));
+//
+//    byte[] with_id = codec.encode(histo, true);
+//    assertEquals(42, with_id[0]);
+//    byte[] raw_component = new byte[raw.length];
+//    System.arraycopy(with_id, 1, raw_component, 0, raw.length);
+//    assertArrayEquals(raw, raw_component);
+//
+//    try {
+//      codec.encode(null, false);
+//      fail("Expected IllegalArgumentException");
+//    } catch (IllegalArgumentException e) { }
+//  }
 }

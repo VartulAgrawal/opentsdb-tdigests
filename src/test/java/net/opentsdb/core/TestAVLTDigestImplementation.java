@@ -79,46 +79,46 @@ public class TestAVLTDigestImplementation {
     } catch (IllegalStateException e) { }
   }
 
-  @Test
-  public void fromHistogram() throws Exception {
-    final AVLTDigestImplementation histo = 
-        new AVLTDigestImplementation(42);
-    final ByteBuffer buf = ByteBuffer.allocate(digest.smallByteSize());
-    digest.asSmallBytes(buf);
-    byte[] raw = buf.array();
-    
-    histo.fromHistogram(raw, false);
-    assertEquals(42.5, histo.percentile(95.0), 0.001);
-    
-    byte[] with_id = new byte[raw.length + 1];
-    with_id[0] = 42;
-    System.arraycopy(raw, 0, with_id, 1, raw.length);
-    
-    histo.fromHistogram(with_id, true);
-    assertEquals(42.5, histo.percentile(95.0), 0.001);
-    
-    try {
-      histo.fromHistogram(new byte[] { 0, 0, 0, 2, 64, 89, 0, 0, 0, 0, 0, 0, 
-          0, 0, 0, 3, 63, -128, 0, 0, /*65, -72, 0, 0, 65, -108, 0, 0, 1, 1, 1*/ }, 
-          false);
-      fail("Expected BufferUnderflowException");
-    } catch (BufferUnderflowException e) { }
-    
-    try {
-      histo.fromHistogram(null, false);
-      fail("Expected IllegalArgumentException");
-    } catch (IllegalArgumentException e) { }
-    
-    try {
-      histo.fromHistogram(new byte[0], false);
-      fail("Expected IllegalArgumentException");
-    } catch (IllegalArgumentException e) { }
-    
-    try {
-      histo.fromHistogram(new byte[1], true);
-      fail("Expected IllegalArgumentException");
-    } catch (IllegalArgumentException e) { }
-  }
+//  @Test
+//  public void fromHistogram() throws Exception {
+//    final AVLTDigestImplementation histo =
+//        new AVLTDigestImplementation(42);
+//    final ByteBuffer buf = ByteBuffer.allocate(digest.smallByteSize());
+//    digest.asSmallBytes(buf);
+//    byte[] raw = buf.array();
+//
+//    histo.fromHistogram(raw, false);
+//    assertEquals(42.5, histo.percentile(95.0), 0.001);
+//
+//    byte[] with_id = new byte[raw.length + 1];
+//    with_id[0] = 42;
+//    System.arraycopy(raw, 0, with_id, 1, raw.length);
+//
+//    histo.fromHistogram(with_id, true);
+//    assertEquals(42.5, histo.percentile(95.0), 0.001);
+//
+//    try {
+//      histo.fromHistogram(new byte[] { 0, 0, 0, 2, 64, 89, 0, 0, 0, 0, 0, 0,
+//          0, 0, 0, 3, 63, -128, 0, 0, /*65, -72, 0, 0, 65, -108, 0, 0, 1, 1, 1*/ },
+//          false);
+//      fail("Expected BufferUnderflowException");
+//    } catch (BufferUnderflowException e) { }
+//
+//    try {
+//      histo.fromHistogram(null, false);
+//      fail("Expected IllegalArgumentException");
+//    } catch (IllegalArgumentException e) { }
+//
+//    try {
+//      histo.fromHistogram(new byte[0], false);
+//      fail("Expected IllegalArgumentException");
+//    } catch (IllegalArgumentException e) { }
+//
+//    try {
+//      histo.fromHistogram(new byte[1], true);
+//      fail("Expected IllegalArgumentException");
+//    } catch (IllegalArgumentException e) { }
+//  }
   
   @Test
   public void percentile() throws Exception {
